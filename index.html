@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vijay Stores</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Debug: Test if HTML is loading -->
+    <script>
+        console.log('HTML file loaded successfully');
+    </script>
+
+    <!-- Configure Tailwind for dark mode and custom colors -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617'
+                        },
+                        accent: {
+                            green: '#10b981',
+                            orange: '#f59e0b',
+                            red: '#ef4444',
+                            blue: '#3b82f6',
+                            purple: '#8b5cf6'
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-in-out',
+                        'slide-in': 'slideIn 0.2s ease-out',
+                        'scale-in': 'scaleIn 0.15s ease-out'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': {
+                                opacity: '0'
+                            },
+                            '100%': {
+                                opacity: '1'
+                            }
+                        },
+                        slideIn: {
+                            '0%': {
+                                transform: 'translateX(-10px)',
+                                opacity: '0'
+                            },
+                            '100%': {
+                                transform: 'translateX(0)',
+                                opacity: '1'
+                            }
+                        },
+                        scaleIn: {
+                            '0%': {
+                                transform: 'scale(0.95)',
+                                opacity: '0'
+                            },
+                            '100%': {
+                                transform: 'scale(1)',
+                                opacity: '1'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Debug: Test Alpine.js initialization -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+        });
+
+        document.addEventListener('alpine:init', function() {
+            console.log('Alpine.js initialized');
+        });
+
+        window.addEventListener('error', function(e) {
+            console.error('JavaScript error:', e.error);
+        });
+    </script>
+
+    <!-- Custom Styles -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        /* Custom scrollbar */
+        
+         ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+        
+         ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        /* Smooth transitions */
+        
+        * {
+            transition: all 0.15s ease;
+        }
+        /* Glass effect */
+        
+        .glass {
+            backdrop-filter: blur(10px);
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+        }
+        /* Gradient backgrounds */
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        
+        .gradient-card {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        }
+        
+        @media print {
+            @page {
+                size: A5;
+                margin: 10mm;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+        }
+        
+        .print-only {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="gradient-bg h-screen overflow-hidden text-gray-100" x-data="invoiceApp()" x-init="init()" @keydown.escape="currentView = 'dashboard'">
+
+    <!-- Main Layout -->
+    <div class="flex h-full">
+
+        <!-- Sidebar -->
+        <div class="w-72 bg-dark-900/50 backdrop-blur-xl border-r border-dark-700/50 no-print relative overflow-hidden">
+            <!-- Gradient overlay -->
+            <div class="absolute inset-0 bg-gradient-to-b from-dark-800/20 to-transparent pointer-events-none"></div>
+
+            <div class="relative z-10 p-6">
+                <!-- Logo/Brand -->
+                <div class="mb-8 animate-fade-in">
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2" x-text="settings.businessName || 'Vijay Stores'">
+                    </h1>
+                    <p class="text-dark-400 text-sm font-medium" x-text="settings.ownerName || 'S. Jaiswal'"></p>
+                </div>
+
+                <!-- Navigation Menu -->
+                <nav class="space-y-3">
+                    <button @click="currentView = 'dashboard'" :class="currentView === 'dashboard' 
+                            ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-blue-300 border-blue-500/30 shadow-lg shadow-blue-500/10' 
+                            : 'text-dark-300 hover:text-white hover:bg-dark-800/50 border-dark-700/50 hover:border-dark-600/50'" class="w-full flex items-center px-4 py-3.5 text-sm font-medium rounded-xl border transition-all duration-200 hover:shadow-lg hover:scale-[1.02] group animate-slide-in">
+                        <div class="mr-3 h-5 w-5 transition-transform group-hover:scale-110">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                        Dashboard
+                        <div x-show="currentView === 'dashboard'" 
+                             class="ml-auto h-2 w-2 bg-blue-400 rounded-full animate-pulse"></div>
+                    </button>
+
+                    <button @click="createNewInvoice()" :class="currentView === 'invoice' 
+                            ? 'bg-gradient-to-r from-green-600/20 to-emerald-600/20 text-green-300 border-green-500/30 shadow-lg shadow-green-500/10' 
+                            : 'text-dark-300 hover:text-white hover:bg-dark-800/50 border-dark-700/50 hover:border-dark-600/50'" class="w-full flex items-center px-4 py-3.5 text-sm font-medium rounded-xl border transition-all duration-200 hover:shadow-lg hover:scale-[1.02] group animate-slide-in">
+                        <div class="mr-3 h-5 w-5 transition-transform group-hover:scale-110">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                        </div>
+                        New Invoice
+                        <div x-show="currentView === 'invoice'" 
+                             class="ml-auto h-2 w-2 bg-green-400 rounded-full animate-pulse"></div>
+                    </button>
+
+                    <button @click="currentView = 'settings'" :class="currentView === 'settings' 
+                            ? 'bg-gradient-to-r from-orange-600/20 to-amber-600/20 text-orange-300 border-orange-500/30 shadow-lg shadow-orange-500/10' 
+                            : 'text-dark-300 hover:text-white hover:bg-dark-800/50 border-dark-700/50 hover:border-dark-600/50'" class="w-full flex items-center px-4 py-3.5 text-sm font-medium rounded-xl border transition-all duration-200 hover:shadow-lg hover:scale-[1.02] group animate-slide-in">
+                        <div class="mr-3 h-5 w-5 transition-transform group-hover:scale-110">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </div>
+                        Settings
+                        <div x-show="currentView === 'settings'" 
+                             class="ml-auto h-2 w-2 bg-orange-400 rounded-full animate-pulse"></div>
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+
+            <!-- Main Content -->
+            <div class="flex-1 overflow-y-auto p-8">
+
+                <!-- Dashboard View -->
+                <div x-show="currentView === 'dashboard'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="space-y-8 animate-fade-in">
+
+                    <!-- Quick Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="gradient-card rounded-xl p-6 border border-dark-700/50 hover:border-blue-500/30 transition-all hover:shadow-xl hover:shadow-blue-500/10">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-dark-400 text-sm font-medium">Total Invoices</p>
+                                    <p class="text-3xl font-bold text-white mt-2" x-text="invoices.length || 0"></p>
+                                </div>
+                                <div class="h-12 w-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="gradient-card rounded-xl p-6 border border-dark-700/50 hover:border-green-500/30 transition-all hover:shadow-xl hover:shadow-green-500/10">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-dark-400 text-sm font-medium">This Month</p>
+                                    <p class="text-3xl font-bold text-white mt-2" x-text="getThisMonthCount()"></p>
+                                </div>
+                                <div class="h-12 w-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="gradient-card rounded-xl p-6 border border-dark-700/50 hover:border-purple-500/30 transition-all hover:shadow-xl hover:shadow-purple-500/10">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-dark-400 text-sm font-medium">Total Revenue</p>
+                                    <p class="text-3xl font-bold text-white mt-2" x-text="'₹' + formatCurrency(getTotalRevenue())"></p>
+                                </div>
+                                <div class="h-12 w-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="gradient-card rounded-xl p-6 border border-dark-700/50 hover:border-yellow-500/30 transition-all hover:shadow-xl hover:shadow-yellow-500/10">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-dark-400 text-sm font-medium">Avg. Invoice</p>
+                                    <p class="text-3xl font-bold text-white mt-2" x-text="'₹' + formatCurrency(getAverageInvoice())"></p>
+                                </div>
+                                <div class="h-12 w-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Invoice Management -->
+                    <div class="gradient-card rounded-xl border border-dark-700/50 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-dark-700/50">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-white">Invoice Management</h3>
+                                <button @click="createNewInvoice()" class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all hover:shadow-lg hover:scale-105">
+                                    <svg class="h-4 w-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                    Create Invoice
+                                </button>
+                            </div>
+
+                            <!-- Search and Filter Controls -->
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <!-- Search by Customer Name -->
+                                <div class="flex-1">
+                                    <div class="relative">
+                                        <input type="text" x-model="searchQuery" @input="filterInvoices()" placeholder="Search by customer name..." class="w-full pl-10 pr-4 py-2 bg-dark-800/50 border border-dark-700/50 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all">
+                                        <svg class="absolute left-3 top-2.5 h-4 w-4 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <!-- Date Range Filter -->
+                                <div class="flex gap-2">
+                                    <input type="date" x-model="dateFilter.startDate" @change="filterInvoices()" class="px-3 py-2 bg-dark-800/50 border border-dark-700/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all">
+                                    <span class="self-center text-dark-400 text-sm">to</span>
+                                    <input type="date" x-model="dateFilter.endDate" @change="filterInvoices()" class="px-3 py-2 bg-dark-800/50 border border-dark-700/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all">
+                                </div>
+
+                                <!-- Sort Options -->
+                                <div class="relative">
+                                    <select x-model="sortBy" @change="filterInvoices()" class="px-3 py-2 bg-dark-800/50 border border-dark-700/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all appearance-none pr-8">
+                                        <option value="date-desc">Latest First</option>
+                                        <option value="date-asc">Oldest First</option>
+                                        <option value="number-desc">Invoice # (High)</option>
+                                        <option value="number-asc">Invoice # (Low)</option>
+                                        <option value="customer-asc">Customer A-Z</option>
+                                        <option value="customer-desc">Customer Z-A</option>
+                                        <option value="amount-desc">Amount (High)</option>
+                                        <option value="amount-asc">Amount (Low)</option>
+                                    </select>
+                                    <svg class="absolute right-2 top-2.5 h-4 w-4 text-dark-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+
+                                <!-- Clear Filters -->
+                                <button @click="clearFilters()" x-show="searchQuery || dateFilter.startDate || dateFilter.endDate" class="px-3 py-2 text-dark-400 hover:text-white transition-colors">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Invoice List -->
+                        <div class="overflow-x-auto">
+                            <!-- Empty State -->
+                            <div x-show="filteredInvoices.length === 0 && invoices.length === 0" class="text-center py-12 px-6">
+                                <div class="h-16 w-16 bg-dark-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <svg class="h-8 w-8 text-dark-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                                <h4 class="text-white font-medium mb-2">No invoices yet</h4>
+                                <p class="text-dark-400 text-sm mb-6">Create your first invoice to get started with professional invoicing.</p>
+                                <button @click="createNewInvoice()" class="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-3 rounded-lg font-medium transition-all hover:shadow-lg hover:scale-105">
+                                    <svg class="h-5 w-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                    Create First Invoice
+                                </button>
+                            </div>
+
+                            <!-- No Search Results -->
+                            <div x-show="filteredInvoices.length === 0 && invoices.length > 0" class="text-center py-8 px-6">
+                                <div class="h-12 w-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <svg class="h-6 w-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </div>
+                                <h4 class="text-white font-medium mb-1">No matching invoices</h4>
+                                <p class="text-dark-400 text-sm">Try adjusting your search or filter criteria.</p>
+                            </div>
+
+                            <!-- Invoice Table -->
+                            <table x-show="filteredInvoices.length > 0" class="w-full">
+                                <thead class="bg-dark-800/30">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-dark-300 uppercase tracking-wider">Invoice #</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-dark-300 uppercase tracking-wider">Customer</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-dark-300 uppercase tracking-wider">Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-dark-300 uppercase tracking-wider">Amount</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-dark-300 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-dark-700/30">
+                                    <template x-for="invoice in filteredInvoices" :key="invoice.id">
+                                        <tr class="hover:bg-dark-800/20 transition-colors cursor-pointer group" @click="editInvoice(invoice)">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-white" x-text="invoice.invoiceNumber"></div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-white" x-text="invoice.customerName"></div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-dark-300" x-text="formatDate(invoice.invoiceDate)"></div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm font-medium text-green-400" x-text="'₹' + formatCurrency(invoice.grandTotal)"></div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="flex items-center space-x-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button @click.stop="editInvoice(invoice)" 
+                                                            class="text-blue-400 hover:text-blue-300 transition-colors"
+                                                            title="Edit Invoice">
+                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                        </svg>
+                                                    </button>
+                                                    <button @click.stop="printInvoice(invoice)" 
+                                                            class="text-green-400 hover:text-green-300 transition-colors"
+                                                            title="Print Invoice">
+                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                                                        </svg>
+                                                    </button>
+                                                    <button @click.stop="duplicateInvoice(invoice)" 
+                                                            class="text-purple-400 hover:text-purple-300 transition-colors"
+                                                            title="Duplicate Invoice">
+                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Results Summary -->
+                        <div x-show="filteredInvoices.length > 0" class="px-6 py-3 bg-dark-800/20 border-t border-dark-700/30">
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-dark-400">
+                                    Showing <span class="font-medium text-white" x-text="filteredInvoices.length"></span> of <span class="font-medium text-white" x-text="invoices.length"></span> invoices
+                                </span>
+                                <span class="text-dark-400">
+                                    Total Value: <span class="font-medium text-green-400" x-text="'₹' + formatCurrency(getTotalValue())"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoice Editor View -->
+                <div x-show="currentView === 'invoice'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="space-y-6 animate-fade-in">
+
+                    <!-- Invoice Header Information -->
+                    <div class="gradient-card rounded-xl border border-dark-700/50 overflow-hidden">
+                        <div class="px-8 py-6 border-b border-dark-700/50">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-10 w-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                        <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-semibold text-white">Invoice Details</h3>
+                                        <p class="text-dark-400 text-sm">Create a new professional invoice</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <button @click="currentView = 'dashboard'" class="px-4 py-2 text-dark-300 hover:text-white transition-colors">
+                                        Cancel
+                                    </button>
+                                    <button @click="showPrintPreview()" :disabled="isLoading || !canSaveInvoice()" class="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium transition-all hover:scale-105 flex items-center space-x-2">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                        <span>Preview</span>
+                                    </button>
+                                    <button @click="saveInvoice()" :disabled="isLoading || !canSaveInvoice()" class="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium transition-all hover:scale-105">
+                                        <span x-text="currentInvoice.id ? 'Update Invoice' : 'Save Invoice'"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="invoice-form" class="p-8 space-y-6">
+                            <!-- Invoice Number and Date -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-gray-300">Invoice Number</label>
+                                    <input type="text" x-model="currentInvoice.invoiceNumber" readonly class="w-full px-4 py-3 bg-dark-800/30 border border-dark-600 rounded-lg text-white cursor-not-allowed" placeholder="Auto-generated">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-gray-300">Invoice Date</label>
+                                    <input type="date" x-model="currentInvoice.invoiceDate" class="w-full px-4 py-3 bg-dark-800/50 border border-dark-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-gray-300">Customer Name *</label>
+                                    <input type="text" x-model="currentInvoice.customerName" required class="w-full px-4 py-3 bg-dark-800/50 border border-dark-600 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                                        placeholder="Enter customer name">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Invoice Items -->
+                    <div class="gradient-card rounded-xl border border-dark-700/50 overflow-hidden">
+                        <div class="px-8 py-6 border-b border-dark-700/50">
+                            <div class="flex items-center space-x-3">
+                                <div class="h-10 w-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                    <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold text-white">Items</h3>
+                                    <p class="text-dark-400 text-sm">Add items to your invoice</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-8">
+                            <!-- Items Table Header -->
+                            <div class="hidden md:grid grid-cols-12 gap-4 mb-4 text-sm font-medium text-dark-300 pb-2 border-b border-dark-700/50">
+                                <div class="col-span-5">Item Name</div>
+                                <div class="col-span-2">Quantity</div>
+                                <div class="col-span-2">Rate (₹)</div>
+                                <div class="col-span-2">Amount (₹)</div>
+                                <div class="col-span-1"></div>
+                            </div>
+
+                            <!-- Items List -->
+                            <div class="space-y-4">
+                                <template x-for="(item, index) in currentInvoice.items" :key="index">
+                                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 bg-dark-800/30 rounded-lg border border-dark-700/30">
+                                        <!-- Item Name with Autocomplete -->
+                                        <div class="col-span-1 md:col-span-5 space-y-1">
+                                            <label class="block md:hidden text-xs font-medium text-dark-300">Item Name</label>
+                                            <div class="relative">
+                                                <input 
+                                                    type="text" 
+                                                    x-model="item.name"
+                                                    @input="updateItemSuggestions($event.target.value, index)"
+                                                    @focus="showSuggestions(index)"
+                                                    @blur="hideSuggestions(index)"
+                                                    @keydown="handleSuggestionKeydown($event, index)"
+                                                    class="w-full px-3 py-2 bg-dark-800 border border-dark-600 rounded-lg text-white text-sm placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                                    placeholder="Enter item name"
+                                                    autocomplete="off"
+                                                >
+                                                <!-- Suggestions Dropdown -->
+                                                <div x-show="item.showSuggestions && item.suggestions.length > 0" 
+                                                     class="absolute z-10 w-full mt-1 bg-dark-800 border border-dark-600 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                                                    <template x-for="(suggestion, suggestionIndex) in item.suggestions" :key="suggestion.id">
+                                                        <div @mousedown="selectSuggestion(index, suggestion)" 
+                                                             @mouseenter="item.selectedSuggestionIndex = suggestionIndex"
+                                                             :class="item.selectedSuggestionIndex === suggestionIndex ? 'bg-blue-600' : 'hover:bg-dark-700'"
+                                                             class="px-3 py-2 text-sm text-white cursor-pointer transition-colors">
+                                                            <div class="font-medium" x-text="suggestion.name"></div>
+                                                            <div class="text-xs" :class="item.selectedSuggestionIndex === suggestionIndex ? 'text-blue-200' : 'text-dark-400'">
+                                                                ₹<span x-text="suggestion.rate.toFixed(2)"></span>
+                                                                <span x-show="suggestion.frequency && suggestion.frequency > 0" class="ml-2">
+                                                                    (used <span x-text="suggestion.frequency"></span>x)
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="col-span-1 md:col-span-2 space-y-1">
+                        <label class="block md:hidden text-xs font-medium text-dark-300">Quantity</label>
+                        <input type="number" x-model.number="item.quantity" @input="calculateItemAmount(index)" min="1" class="w-full px-3 py-2 bg-dark-800 border border-dark-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
+
+                    <!-- Rate -->
+                    <div class="col-span-1 md:col-span-2 space-y-1">
+                        <label class="block md:hidden text-xs font-medium text-dark-300">Rate (₹)</label>
+                        <input type="number" x-model.number="item.rate" @input="calculateItemAmount(index)" min="0" step="0.01" class="w-full px-3 py-2 bg-dark-800 border border-dark-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="col-span-1 md:col-span-2 space-y-1">
+                        <label class="block md:hidden text-xs font-medium text-dark-300">Amount (₹)</label>
+                        <input type="text" :value="formatCurrency(item.amount)" readonly class="w-full px-3 py-2 bg-dark-700/50 border border-dark-600 rounded-lg text-green-400 text-sm font-medium cursor-not-allowed">
+                    </div>
+
+                    <!-- Delete Button -->
+                    <div class="col-span-1 md:col-span-1 space-y-1">
+                        <label class="block md:hidden text-xs font-medium text-dark-300">&nbsp;</label>
+                        <button @click="removeInvoiceItem(index)" x-show="currentInvoice.items.length > 1" class="w-full p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-all">
+                                                <svg class="h-4 w-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
+                    </div>
+                </div>
+                </template>
+            </div>
+
+            <!-- Add Item Button (moved below items) -->
+            <div class="mt-4 flex justify-center">
+                <button @click="addInvoiceItem()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-sm font-medium transition-all hover:scale-105 flex items-center space-x-2 shadow-lg">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                    <span>Add Another Item</span>
+                                </button>
+            </div>
+
+            <!-- Invoice Total -->
+            <div class="mt-8 pt-6 border-t border-dark-700/50">
+                <div class="flex justify-end">
+                    <div class="bg-dark-800/50 rounded-lg p-6 min-w-64">
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-dark-300">
+                                <span>Subtotal:</span>
+                                <span x-text="formatCurrency(currentInvoice.grandTotal)"></span>
+                            </div>
+                            <div class="flex justify-between text-lg font-semibold text-white border-t border-dark-700 pt-3">
+                                <span>Grand Total:</span>
+                                <span class="text-green-400" x-text="formatCurrency(currentInvoice.grandTotal)"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+    <!-- Settings View -->
+    <div x-show="currentView === 'settings'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="space-y-6 animate-fade-in">
+
+        <!-- Business Information Form -->
+        <div class="gradient-card rounded-xl border border-dark-700/50 overflow-hidden">
+            <div class="px-8 py-6 border-b border-dark-700/50">
+                <div class="flex items-center space-x-3">
+                    <div class="h-10 w-10 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                        <svg class="h-5 w-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-white">Business Information</h3>
+                        <p class="text-dark-400 text-sm">Configure your business details for invoices</p>
+                    </div>
+                </div>
+            </div>
+
+            <form @submit.prevent="saveSettings()" class="p-8 space-y-6">
+                <!-- Business Logo Upload -->
+                <div class="space-y-3">
+                    <label class="block text-sm font-medium text-gray-300">Business Logo</label>
+                    <div class="flex items-center space-x-6">
+                        <!-- Logo Preview -->
+                        <div class="h-24 w-24 bg-dark-800 rounded-lg border-2 border-dashed border-dark-600 flex items-center justify-center overflow-hidden">
+                            <div x-show="!settingsForm.logoPath" class="text-center">
+                                <svg class="h-8 w-8 text-dark-500 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
+                                <span class="text-xs text-dark-500">Logo</span>
+                            </div>
+                            <img x-show="settingsForm.logoPath" :src="settingsForm.logoPath" class="h-full w-full object-contain" alt="Business Logo">
+                        </div>
+                        <!-- Upload Controls -->
+                        <div class="flex-1">
+                            <input type="file" accept="image/*" @change="handleLogoUpload" class="hidden" id="logoUpload">
+                            <button type="button" @click="$refs.logoInput.click()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all hover:scale-105">
+                                            Choose Logo
+                                        </button>
+                            <input type="file" accept="image/*" @change="handleLogoUpload" class="hidden" x-ref="logoInput">
+                            <p class="text-xs text-dark-400 mt-2">Recommended: 200x200px, PNG or JPG</p>
+                            <button x-show="settingsForm.logoPath" type="button" @click="removeLogo()" class="text-red-400 hover:text-red-300 text-xs mt-1 transition-colors">
+                                            Remove Logo
+                                        </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Business Name -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-300">Business Name *</label>
+                    <input type="text" x-model="settingsForm.businessName" required class="w-full px-4 py-3 bg-dark-800/50 border border-dark-600 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        placeholder="Enter your business name (e.g., Vijay Stores)">
+                    <p class="text-xs text-dark-400">This will appear as the main title in your application</p>
+                </div>
+
+                <!-- Business Address -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-300">Business Address *</label>
+                    <textarea x-model="settingsForm.address" required rows="3" class="w-full px-4 py-3 bg-dark-800/50 border border-dark-600 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                        placeholder="Enter your complete business address"></textarea>
+                </div>
+
+                <!-- GSTIN -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-300">GSTIN</label>
+                    <input type="text" x-model="settingsForm.gstin" class="w-full px-4 py-3 bg-dark-800/50 border border-dark-600 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="Enter your GST identification number"
+                        maxlength="15">
+                </div>
+
+                <!-- Owner Details -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-300">Owner Name *</label>
+                        <input type="text" x-model="settingsForm.ownerName" required class="w-full px-4 py-3 bg-dark-800/50 border border-dark-600 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            placeholder="Enter owner name (e.g., S. Jaiswal)">
+                        <p class="text-xs text-dark-400">This will appear below the business name in your application</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-300">Phone Number *</label>
+                        <input type="tel" x-model="settingsForm.ownerPhone" required class="w-full px-4 py-3 bg-dark-800/50 border border-dark-600 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            placeholder="Enter phone number">
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="flex justify-end pt-6 border-t border-dark-700/50">
+                    <button type="submit" :disabled="isLoading" class="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-lg font-medium transition-all hover:shadow-lg hover:scale-105 flex items-center space-x-2">
+                                    <svg x-show="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <svg x-show="!isLoading" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span x-text="isLoading ? 'Saving...' : 'Save Settings'"></span>
+                                </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Preview Section -->
+        <div x-show="settingsForm.businessName" class="gradient-card rounded-xl border border-dark-700/50 overflow-hidden">
+            <div class="px-8 py-6 border-b border-dark-700/50">
+                <div class="flex items-center space-x-3">
+                    <div class="h-10 w-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                        <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-white">Preview</h3>
+                        <p class="text-dark-400 text-sm">How your business details will appear on invoices</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-8">
+                <div class="bg-white rounded-lg p-6 text-gray-900 max-w-md">
+                    <!-- Preview Content -->
+                    <div class="flex items-start space-x-4">
+                        <div x-show="settingsForm.logoPath" class="flex-shrink-0">
+                            <img :src="settingsForm.logoPath" class="h-16 w-16 object-contain" alt="Logo">
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-lg font-bold text-gray-900" x-text="settingsForm.businessName || 'Business Name'"></h4>
+                            <p class="text-sm text-gray-600 mt-1 whitespace-pre-line" x-text="settingsForm.address || 'Business Address'"></p>
+                            <p x-show="settingsForm.gstin" class="text-xs text-gray-500 mt-2">GSTIN: <span x-text="settingsForm.gstin"></span></p>
+                            <div class="mt-3 pt-3 border-t border-gray-200">
+                                <p class="text-sm font-medium text-gray-700" x-text="settingsForm.ownerName || 'Owner Name'"></p>
+                                <p class="text-sm text-gray-600" x-text="settingsForm.ownerPhone || 'Phone Number'"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Print Preview View -->
+    <div x-show="currentView === 'print-preview'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="space-y-6 animate-fade-in">
+
+        <!-- Print Preview Header -->
+        <div class="gradient-card rounded-xl border border-dark-700/50 overflow-hidden">
+            <div class="px-8 py-6 border-b border-dark-700/50">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="h-10 w-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                            <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                                        </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-white">Print Preview</h3>
+                            <p class="text-dark-400 text-sm">Preview and save your invoice as PDF</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button @click="currentView = 'invoice'" class="px-4 py-2 text-dark-300 hover:text-white transition-colors">
+                                        Back to Edit
+                                    </button>
+                        <button @click="directPrint()" :disabled="isLoading" class="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium transition-all hover:scale-105 flex items-center space-x-2">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                                        </svg>
+                                        <span>Direct Print</span>
+                                    </button>
+                        <button @click="saveAsPDF()" :disabled="isLoading" class="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium transition-all hover:scale-105 flex items-center space-x-2">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <span>Save as PDF</span>
+                                    </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- A5 Preview -->
+            <div class="p-8">
+                <div class="max-w-2xl mx-auto">
+                    <!-- Debug Info (only visible in dev mode) -->
+                    <div x-show="false" class="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6 text-xs font-mono text-gray-300">
+                        <p>Invoice Number: <span x-text="currentInvoice.invoiceNumber"></span></p>
+                        <p>Customer: <span x-text="currentInvoice.customerName"></span></p>
+                        <p>Items Count: <span x-text="currentInvoice.items ? currentInvoice.items.length : 0"></span></p>
+                        <p>Grand Total: <span x-text="currentInvoice.grandTotal"></span></p>
+                    </div>
+
+                    <!-- Print Preview Notice -->
+                    <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-6">
+                        <div class="flex items-center space-x-3">
+                            <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                            <div>
+                                <p class="text-yellow-400 font-medium">Printer not available</p>
+                                <p class="text-yellow-300 text-sm">Preview your invoice and save as PDF instead.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Invoice Preview (A5 Size) -->
+                    <div class="bg-white rounded-lg shadow-xl p-8 text-black print-content" style="width: 210mm; max-width: 100%; margin: 0 auto; min-height: 148mm;">
+
+                        <!-- Business Header -->
+                        <div class="flex items-start justify-between mb-8">
+                            <div class="flex items-start space-x-4">
+                                <div x-show="settingsForm.logoPath" class="flex-shrink-0">
+                                    <img :src="settingsForm.logoPath" class="h-16 w-16 object-contain" alt="Business Logo" @error="console.error('Logo failed to load')">
+                                </div>
+                                <div>
+                                    <h1 class="text-2xl font-bold text-gray-900" x-text="settingsForm.businessName || 'Business Name'"></h1>
+                                    <p class="text-sm text-gray-600 mt-1 whitespace-pre-line" x-text="settingsForm.address || 'Business Address'"></p>
+                                    <p x-show="settingsForm.gstin" class="text-xs text-gray-500 mt-1">GSTIN: <span x-text="settingsForm.gstin"></span></p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <h2 class="text-xl font-bold text-gray-900">INVOICE</h2>
+                                <p class="text-sm text-gray-600 mt-1"># <span x-text="currentInvoice.invoiceNumber || 'N/A'"></span></p>
+                                <p class="text-sm text-gray-600">Date: <span x-text="currentInvoice.invoiceDate ? formatDate(currentInvoice.invoiceDate) : 'N/A'"></span></p>
+                            </div>
+                        </div>
+
+                        <!-- Customer Details -->
+                        <div class="mb-6">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h3 class="text-sm font-semibold text-gray-700 mb-2">Bill To:</h3>
+                                <p class="text-lg font-medium text-gray-900" x-text="currentInvoice.customerName || 'Customer Name'"></p>
+                            </div>
+                        </div>
+
+                        <!-- Items Table -->
+                        <div class="mb-8">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b-2 border-gray-300">
+                                        <th class="text-left py-2 text-sm font-semibold text-gray-700">Item</th>
+                                        <th class="text-center py-2 text-sm font-semibold text-gray-700">Qty</th>
+                                        <th class="text-right py-2 text-sm font-semibold text-gray-700">Rate</th>
+                                        <th class="text-right py-2 text-sm font-semibold text-gray-700">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-if="currentInvoice.items && currentInvoice.items.length > 0">
+                                        <template x-for="(item, index) in currentInvoice.items.filter(i => i.name && i.name.trim() !== '')" :key="index">
+                                            <tr class="border-b border-gray-200">
+                                                <td class="py-3 text-sm text-gray-900" x-text="item.name"></td>
+                                                <td class="py-3 text-sm text-gray-600 text-center" x-text="item.quantity || 0"></td>
+                                                <td class="py-3 text-sm text-gray-600 text-right">₹<span x-text="(item.rate || 0).toFixed(2)"></span></td>
+                                                <td class="py-3 text-sm font-medium text-gray-900 text-right">₹<span x-text="(item.amount || 0).toFixed(2)"></span></td>
+                                            </tr>
+                                        </template>
+                                    </template>
+                                    <template x-if="!currentInvoice.items || currentInvoice.items.length === 0">
+                                        <tr>
+                                            <td colspan="4" class="py-3 text-sm text-gray-500 text-center">No items</td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Totals -->
+                        <div class="flex justify-end mb-8">
+                            <div class="w-64">
+                                <div class="flex justify-between border-t-2 border-gray-300 pt-4">
+                                    <span class="text-lg font-bold text-gray-900">Total Amount:</span>
+                                    <span class="text-lg font-bold text-gray-900">₹<span x-text="(currentInvoice.grandTotal || 0).toFixed(2)"></span></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Business Contact -->
+                        <div class="border-t border-gray-300 pt-4">
+                            <div class="text-center text-xs text-gray-500">
+                                <p x-text="settingsForm.ownerName"></p>
+                                <p x-text="settingsForm.ownerPhone"></p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    </div>
+    </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div x-show="isLoading" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="glass rounded-xl p-8 flex items-center space-x-4 animate-scale-in">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+            <span class="text-white font-medium">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Application JavaScript -->
+    <script src="./app.js"></script>
+</body>
+
+</html>

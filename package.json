@@ -1,0 +1,69 @@
+{
+    "name": "simple-invoice-generator",
+    "version": "1.0.0",
+    "description": "A simple, modern invoice generator for small businesses",
+    "productName": "Simple Invoice Generator",
+    "license": "ISC",
+    "author": "Your Name",
+    "type": "commonjs",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron .",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "electron-builder --win --x64",
+        "build:dir": "electron-builder --win --x64 --dir",
+        "dist": "electron-builder"
+    },
+    "build": {
+        "appId": "com.yourcompany.simple-invoice-generator",
+        "productName": "Simple Invoice Generator",
+        "win": {
+            "target": [{
+                    "target": "nsis",
+                    "arch": [
+                        "x64"
+                    ]
+                },
+                {
+                    "target": "portable",
+                    "arch": [
+                        "x64"
+                    ]
+                }
+            ],
+            "icon": "build/icon.ico"
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true,
+            "createDesktopShortcut": true,
+            "createStartMenuShortcut": true,
+            "shortcutName": "Simple Invoice Generator"
+        },
+        "directories": {
+            "output": "dist",
+            "buildResources": "build"
+        },
+        "files": [
+            "**/*",
+            "!**/*.md",
+            "!dist",
+            "!build",
+            "!.git",
+            "!.gitignore"
+        ],
+        "extraResources": [],
+        "asarUnpack": [
+            "node_modules/sqlite3/**/*",
+            "node_modules/puppeteer/**/*"
+        ]
+    },
+    "devDependencies": {
+        "electron": "^38.2.2",
+        "electron-builder": "^26.0.12"
+    },
+    "dependencies": {
+        "puppeteer": "^24.24.0",
+        "sqlite3": "^5.1.7"
+    }
+}
