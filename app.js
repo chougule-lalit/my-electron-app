@@ -603,7 +603,8 @@ function invoiceApp() {
                     gstin: this.settings.gstin || '',
                     ownerName: this.settings.ownerName || '',
                     ownerPhone: this.settings.ownerPhone || '',
-                    logoPath: this.settings.logoPath || ''
+                    logoPath: this.settings.logoPath || '',
+                    foodLicenseNumber: this.settings.foodLicenseNumber || ''
                 };
 
                 // Serialize data properly for IPC transfer

@@ -400,6 +400,22 @@ async function generateInvoiceHTML(invoice, settings) {
                 margin-top: 4px;
             }
             
+            .business-contact {
+                margin-top: 8px;
+                padding-top: 6px;
+                border-top: 1px solid #e5e5e5;
+            }
+            
+            .owner-name, .owner-phone {
+                font-size: 9px;
+                color: #666;
+                line-height: 1.2;
+            }
+            
+            .owner-name {
+                font-weight: 600;
+            }
+            
             .invoice-details {
                 text-align: right;
             }
@@ -496,6 +512,13 @@ async function generateInvoiceHTML(invoice, settings) {
                 text-align: center;
                 font-size: 8px;
                 color: #888;
+                margin-top: 15px;
+            }
+            
+            .authorization {
+                font-weight: 600;
+                margin-bottom: 4px;
+                font-size: 9px;
             }
             
             .contact-info {
@@ -512,6 +535,11 @@ async function generateInvoiceHTML(invoice, settings) {
                     <div class="business-name">${settings.businessName || 'Business Name'}</div>
                     <div class="business-address">${settings.address || 'Business Address'}</div>
                     ${settings.gstin ? `<div class="business-gstin">GSTIN: ${settings.gstin}</div>` : ''}
+                    ${settings.foodLicenseNumber ? `<div class="business-gstin">Food License: ${settings.foodLicenseNumber}</div>` : ''}
+                    <div class="business-contact">
+                        <div class="owner-name">${settings.ownerName || ''}</div>
+                        <div class="owner-phone">${settings.ownerPhone || ''}</div>
+                    </div>
                 </div>
                 <div class="invoice-details">
                     <div class="invoice-title">INVOICE</div>
@@ -560,8 +588,8 @@ async function generateInvoiceHTML(invoice, settings) {
             
             <!-- Footer -->
             <div class="footer">
-                <div>${settings.ownerName || ''}</div>
-                <div class="contact-info">${settings.ownerPhone || ''}</div>
+                <div class="authorization">This is a computer-generated invoice and does not require physical signature or stamp.</div>
+                <div class="contact-info">For any queries, please contact: ${settings.ownerPhone || 'N/A'}</div>
             </div>
         </div>
     </body>

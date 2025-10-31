@@ -8,13 +8,14 @@ The application will be developed for the desktop, ensuring all data is stored l
 
 ## 2. Core User Stories
 
-- **As a user,** I want to set up my business profile (logo, name, address, GSTIN) once, so it automatically appears on all my invoices.
+- **As a user,** I want to set up my business profile (logo, name, address, GSTIN, food license) once, so it automatically appears on all my invoices.
 - **As a user,** I want to create a new invoice where the invoice number and date are automatically generated for my convenience.
 - **As a user,** when I add items to an invoice, I want the application to remember them so it can suggest them to me in the future, saving me time.
 - **As a user,** I want all calculations (line totals, grand total) to be done automatically and accurately.
 - **As a user,** I want to see a list of all my past invoices, with the ability to search by customer name and filter by date.
 - **As a user,** I want to be able to open and edit any previously created invoice.
 - **As a user,** I want to print any invoice in a clean, professional format designed for A5 paper.
+- **As a food business owner,** I want to include my food license number on invoices for regulatory compliance and professional credibility.
 
 ## 3. Technical Specifications
 
@@ -33,21 +34,34 @@ This project is to be built sequentially. Complete each phase before moving to t
 - ✅ **Phase 1: COMPLETED** - All foundation elements implemented
 - ✅ **Phase 1.5: COMPLETED** - Modern UI/UX Enhancement (Layout Fix Applied)
 - ✅ **Phase 2: COMPLETED** - Settings Management (Business Configuration)
+- ✅ **Phase 2.5: COMPLETED** - Food License Enhancement (November 1, 2025)
 - ✅ **Phase 3: COMPLETED** - Core Invoice Creation UI (Full Invoice Editor)
 - ✅ **Phase 3.5: COMPLETED** - Invoice Saving Fix & Print/PDF Features (ENHANCED)
 - ✅ **Phase 4: COMPLETED** - Data Persistence & Smart Suggestions Enhancement
 - ✅ **Phase 5: COMPLETED** - Invoice Management Dashboard (ENHANCED)
 - ✅ **Phase 5.5: COMPLETED** - Print Preview UI Fix (October 25, 2025)
+- ✅ **Phase 5.6: COMPLETED** - PDF Layout Synchronization (November 1, 2025)
 - 🔄 **Ready for Phase 6** - Final Polish & Testing
 
-**CURRENT STATUS - Phase 5.5 COMPLETED (October 25, 2025):**
-- ✅ **FIXED:** Print preview template now properly displays invoice content
-- ✅ **ENHANCED:** Added safety checks and fallbacks for all data bindings
-- ✅ **IMPROVED:** Changed Print button to Preview button for better UX workflow
-- ✅ **ADDED:** New `showPrintPreview()` function to validate and show preview
-- ✅ **FIXED:** Items table now handles empty arrays gracefully
-- ✅ **ENHANCED:** Added null checks and default values throughout preview template
-- ✅ **IMPROVED:** Better error handling when preview data is incomplete
+**CURRENT STATUS - Phase 5.6 COMPLETED (November 1, 2025):**
+**CURRENT STATUS - Phase 5.6 COMPLETED (November 1, 2025):**
+
+**LATEST UPDATES (November 1, 2025):**
+- ✅ **NEW:** Food License Number field added to business settings for regulatory compliance
+- ✅ **FIXED:** Settings form input disabled state - users can now properly edit all settings fields
+- ✅ **ENHANCED:** PDF generation layout reorganized to match preview screen exactly
+- ✅ **IMPROVED:** Professional authorization statement added to invoice footer
+- ✅ **SYNCHRONIZED:** Complete parity between preview screen and generated PDF layout
+
+**PREVIOUS MILESTONE (October 25, 2025):**
+- ✅ **ENHANCED:** Added Food License Number field to business settings
+- ✅ **FIXED:** Settings form input disabled state issues
+- ✅ **UPDATED:** PDF generation to match preview layout exactly
+- ✅ **REORGANIZED:** Business information layout in invoices (GSTIN → Food License → Owner Details)
+- ✅ **ADDED:** Professional authorization statement in PDF footer
+- ✅ **SYNCHRONIZED:** Preview and PDF layouts now identical
+- ✅ **IMPROVED:** Form state management for settings screen
+- ✅ **ENHANCED:** Database schema with Food License Number field
 - ✅ Complete Alpine.js data bindings for all invoice fields
 - ✅ Professional A5 layout matching PDF generation format
 - ✅ Logo, business details, customer info all display correctly
@@ -238,6 +252,36 @@ The print preview template was actually already implemented but had potential is
 - Error handling and success notifications
 - Responsive design with modern dark theme consistency
 - File management for logo storage in user data directory
+
+---
+
+### Phase 2.5: Food License Enhancement ✅ **COMPLETED** (November 1, 2025)
+
+**Goal:** Add Food License Number field and fix settings form input issues.
+
+**COMPLETED FEATURES:**
+- ✅ **Added Food License Number Field:** New optional field in business settings for food establishments
+- ✅ **Fixed Settings Form Input Issues:** Resolved disabled input state problems on settings screen
+- ✅ **Database Schema Enhancement:** Added `foodLicenseNumber` column to Settings table with migration support
+- ✅ **Form State Management:** Enhanced `enableAllFormInputs()` and added dedicated `enableSettingsFormInputs()` function
+- ✅ **Navigation Improvements:** Added `goToSettings()` method to ensure proper form state on view switching
+- ✅ **UI Integration:** Food License field added with consistent styling and proper validation
+- ✅ **Preview Integration:** Food License Number displays in both settings preview and invoice templates
+
+**TECHNICAL IMPLEMENTATION:**
+- Enhanced database schema with backward-compatible migration system
+- Added Food License Number to all form handling functions (`settingsForm`, `populateSettingsForm`, `saveSettings`)
+- Fixed form input disabled state by adding proper IDs and targeting both invoice and settings forms
+- Improved Alpine.js state management for settings view activation
+- Added conditional display logic for Food License Number in preview templates
+
+**UI/UX IMPROVEMENTS:**
+- Food License Number field positioned logically after GSTIN field
+- Consistent styling matching existing form elements
+- Help text and placeholder guidance for users
+- Conditional display - only shows when populated
+- Real-time preview updates in settings preview section
+- Professional integration in invoice layouts
 
 ---
 
@@ -520,6 +564,54 @@ The print preview template was actually already implemented but had potential is
 
 ---
 
+### Phase 5.6: PDF Layout Synchronization ✅ **COMPLETED** (November 1, 2025)
+
+**Goal:** Synchronize PDF generation layout with preview screen and enhance professional invoice presentation.
+
+**COMPLETED FEATURES:**
+- ✅ **PDF Layout Reorganization:** Updated PDF template to match preview layout exactly
+- ✅ **Business Information Layout:** Reorganized invoice header with proper hierarchy:
+  - Business Name and Address
+  - GSTIN (if available)
+  - Food License Number (if available)  
+  - Owner Name and Phone Number
+- ✅ **Professional Authorization Footer:** Added computer-generated invoice statement
+- ✅ **Data Synchronization:** Updated `saveAsPDF()` function to include Food License Number
+- ✅ **Enhanced PDF Template:** Modified `generateInvoiceHTML()` with new layout structure
+- ✅ **Improved Styling:** Added CSS for business contact section and authorization statement
+
+**TECHNICAL IMPLEMENTATION:**
+- Updated `app.js` `saveAsPDF()` function to include `foodLicenseNumber` in `cleanSettings`
+- Modified `main.js` `generateInvoiceHTML()` function to match preview template structure
+- Added new CSS classes for business contact section (`.business-contact`, `.owner-name`, `.owner-phone`)
+- Enhanced footer styling with authorization statement (`.authorization` class)
+- Conditional rendering for Food License Number using same logic as preview
+
+**LAYOUT IMPROVEMENTS:**
+- **Business Header:** All credentials grouped together professionally
+- **License Information:** GSTIN and Food License displayed prominently
+- **Contact Details:** Owner name and phone integrated in header
+- **Authorization Statement:** "This is a computer-generated invoice and does not require physical signature or stamp"
+- **Professional Footer:** Contact information for queries
+
+**USER EXPERIENCE ENHANCEMENTS:**
+- ✅ **Perfect Synchronization:** PDF output now exactly matches preview screen
+- ✅ **Professional Presentation:** Enhanced business credibility with proper licensing display
+- ✅ **Legal Compliance:** Authorization statement establishes invoice validity
+- ✅ **Consistent Branding:** Unified layout across preview and PDF generation
+- ✅ **Complete Information:** All business details properly organized and displayed
+
+**TESTING RESULTS:**
+- ✅ PDF generation includes Food License Number when available
+- ✅ Business information layout matches preview exactly
+- ✅ Authorization statement appears in PDF footer
+- ✅ Owner contact details properly positioned in header
+- ✅ Conditional fields (GSTIN, Food License) render correctly
+- ✅ Professional styling maintained in PDF output
+- ✅ A5 format optimized for business use
+
+---
+
 ### Phase 6: Final Polish & Testing
 
 **Goal:** Finalize the application with comprehensive testing, UI refinements, and documentation.
@@ -548,7 +640,8 @@ CREATE TABLE Settings (
     gstin TEXT,
     ownerName TEXT,
     ownerPhone TEXT,
-    logoPath TEXT
+    logoPath TEXT,
+    foodLicenseNumber TEXT
 );
 
 -- A master list of all unique items for quick suggestions
