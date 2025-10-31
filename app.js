@@ -17,7 +17,8 @@ function invoiceApp() {
             gstin: '',
             ownerName: '',
             ownerPhone: '',
-            logoPath: ''
+            logoPath: '',
+            foodLicenseNumber: ''
         },
 
         // Current invoice being edited
@@ -48,6 +49,12 @@ function invoiceApp() {
                 await this.loadInvoices();
                 await this.loadItems();
                 this.populateSettingsForm();
+
+                // Ensure all form inputs are enabled after data loads
+                setTimeout(() => {
+                    this.enableAllFormInputs();
+                    this.enableSettingsFormInputs();
+                }, 300);
             } catch (error) {
                 console.error('Error loading initial data:', error);
                 this.showError('Failed to load application data');
@@ -64,7 +71,8 @@ function invoiceApp() {
                 gstin: this.settings.gstin || '',
                 ownerName: this.settings.ownerName || '',
                 ownerPhone: this.settings.ownerPhone || '',
-                logoPath: this.settings.logoPath ? `file://${this.settings.logoPath}` : ''
+                logoPath: this.settings.logoPath ? `file://${this.settings.logoPath}` : '',
+                foodLicenseNumber: this.settings.foodLicenseNumber || ''
             };
 
             // Update window title
@@ -122,14 +130,36 @@ function invoiceApp() {
             }, 100);
         },
 
+        // Navigate to settings and ensure inputs are enabled
+        goToSettings() {
+            this.currentView = 'settings';
+            // Ensure settings form inputs are enabled after view transition
+            setTimeout(() => {
+                this.enableSettingsFormInputs();
+            }, 200);
+        },
+
         // Helper method to enable all form inputs
         enableAllFormInputs() {
-            const allInputs = document.querySelectorAll('#invoice-form input, #invoice-form textarea, #invoice-form select');
+            const allInputs = document.querySelectorAll('#invoice-form input, #invoice-form textarea, #invoice-form select, #settings-form input, #settings-form textarea, #settings-form select');
             allInputs.forEach(input => {
                 if (!input.hasAttribute('readonly')) {
                     input.disabled = false;
                     input.style.pointerEvents = 'auto';
                     input.style.opacity = '1';
+                }
+            });
+        },
+
+        // Ensure settings form inputs are enabled
+        enableSettingsFormInputs() {
+            const settingsInputs = document.querySelectorAll('#settings-form input, #settings-form textarea, #settings-form select');
+            settingsInputs.forEach(input => {
+                if (!input.hasAttribute('readonly') && input.type !== 'file') {
+                    input.disabled = false;
+                    input.style.pointerEvents = 'auto';
+                    input.style.opacity = '1';
+                    input.style.cursor = 'text';
                 }
             });
         },

@@ -211,7 +211,7 @@
                              class="ml-auto h-2 w-2 bg-green-400 rounded-full animate-pulse"></div>
                     </button>
 
-                    <button @click="currentView = 'settings'" :class="currentView === 'settings' 
+                    <button @click="goToSettings()" :class="currentView === 'settings' 
                             ? 'bg-gradient-to-r from-orange-600/20 to-amber-600/20 text-orange-300 border-orange-500/30 shadow-lg shadow-orange-500/10' 
                             : 'text-dark-300 hover:text-white hover:bg-dark-800/50 border-dark-700/50 hover:border-dark-600/50'" class="w-full flex items-center px-4 py-3.5 text-sm font-medium rounded-xl border transition-all duration-200 hover:shadow-lg hover:scale-[1.02] group animate-slide-in">
                         <div class="mr-3 h-5 w-5 transition-transform group-hover:scale-110">
@@ -661,7 +661,7 @@
                 </div>
             </div>
 
-            <form @submit.prevent="saveSettings()" class="p-8 space-y-6">
+            <form id="settings-form" @submit.prevent="saveSettings()" class="p-8 space-y-6">
                 <!-- Business Logo Upload -->
                 <div class="space-y-3">
                     <label class="block text-sm font-medium text-gray-300">Business Logo</label>
@@ -711,6 +711,14 @@
                     <label class="block text-sm font-medium text-gray-300">GSTIN</label>
                     <input type="text" x-model="settingsForm.gstin" class="w-full px-4 py-3 bg-dark-800/50 border border-dark-600 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" placeholder="Enter your GST identification number"
                         maxlength="15">
+                </div>
+
+                <!-- Food License Number -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-300">Food License Number</label>
+                    <input type="text" x-model="settingsForm.foodLicenseNumber" class="w-full px-4 py-3 bg-dark-800/50 border border-dark-600 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        placeholder="Enter your food license number">
+                    <p class="text-xs text-dark-400">Food license or permit number if applicable</p>
                 </div>
 
                 <!-- Owner Details -->
@@ -773,6 +781,7 @@
                             <h4 class="text-lg font-bold text-gray-900" x-text="settingsForm.businessName || 'Business Name'"></h4>
                             <p class="text-sm text-gray-600 mt-1 whitespace-pre-line" x-text="settingsForm.address || 'Business Address'"></p>
                             <p x-show="settingsForm.gstin" class="text-xs text-gray-500 mt-2">GSTIN: <span x-text="settingsForm.gstin"></span></p>
+                            <p x-show="settingsForm.foodLicenseNumber" class="text-xs text-gray-500 mt-1">Food License: <span x-text="settingsForm.foodLicenseNumber"></span></p>
                             <div class="mt-3 pt-3 border-t border-gray-200">
                                 <p class="text-sm font-medium text-gray-700" x-text="settingsForm.ownerName || 'Owner Name'"></p>
                                 <p class="text-sm text-gray-600" x-text="settingsForm.ownerPhone || 'Phone Number'"></p>
@@ -860,6 +869,11 @@
                                     <h1 class="text-2xl font-bold text-gray-900" x-text="settingsForm.businessName || 'Business Name'"></h1>
                                     <p class="text-sm text-gray-600 mt-1 whitespace-pre-line" x-text="settingsForm.address || 'Business Address'"></p>
                                     <p x-show="settingsForm.gstin" class="text-xs text-gray-500 mt-1">GSTIN: <span x-text="settingsForm.gstin"></span></p>
+                                    <p x-show="settingsForm.foodLicenseNumber" class="text-xs text-gray-500 mt-1">Food License: <span x-text="settingsForm.foodLicenseNumber"></span></p>
+                                    <div class="mt-2">
+                                        <p class="text-xs text-gray-600" x-text="settingsForm.ownerName"></p>
+                                        <p class="text-xs text-gray-600" x-text="settingsForm.ownerPhone"></p>
+                                    </div>
                                 </div>
                             </div>
                             <div class="text-right">
@@ -918,11 +932,11 @@
                             </div>
                         </div>
 
-                        <!-- Business Contact -->
+                        <!-- Business Contact & Authorization -->
                         <div class="border-t border-gray-300 pt-4">
                             <div class="text-center text-xs text-gray-500">
-                                <p x-text="settingsForm.ownerName"></p>
-                                <p x-text="settingsForm.ownerPhone"></p>
+                                <p class="font-medium">This is a computer-generated invoice and does not require physical signature or stamp.</p>
+                                <p class="mt-1">For any queries, please contact: <span x-text="settingsForm.ownerPhone || 'N/A'"></span></p>
                             </div>
                         </div>
 

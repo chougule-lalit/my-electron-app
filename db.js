@@ -84,7 +84,8 @@ function createTables() {
         const upgradeQueries = [
             `ALTER TABLE Items ADD COLUMN frequency INTEGER DEFAULT 0`,
             `ALTER TABLE Items ADD COLUMN lastUsed TEXT`,
-            `ALTER TABLE Items ADD COLUMN createdAt TEXT`
+            `ALTER TABLE Items ADD COLUMN createdAt TEXT`,
+            `ALTER TABLE Settings ADD COLUMN foodLicenseNumber TEXT`
         ];
 
         let completed = 0;
@@ -179,12 +180,12 @@ function getSettings() {
 
 function saveSettings(settings) {
     return new Promise((resolve, reject) => {
-        const { businessName, address, gstin, ownerName, ownerPhone, logoPath } = settings;
+        const { businessName, address, gstin, ownerName, ownerPhone, logoPath, foodLicenseNumber } = settings;
 
         db.run(
             `INSERT OR REPLACE INTO Settings 
-             (id, businessName, address, gstin, ownerName, ownerPhone, logoPath) 
-             VALUES (1, ?, ?, ?, ?, ?, ?)`, [businessName, address, gstin, ownerName, ownerPhone, logoPath],
+             (id, businessName, address, gstin, ownerName, ownerPhone, logoPath, foodLicenseNumber) 
+             VALUES (1, ?, ?, ?, ?, ?, ?, ?)`, [businessName, address, gstin, ownerName, ownerPhone, logoPath, foodLicenseNumber],
             function(err) {
                 if (err) {
                     reject(err);
